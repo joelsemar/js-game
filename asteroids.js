@@ -5,7 +5,7 @@ function Asteroids(){
         // configuration directives are placed in local variables
 		var w = document.documentElement.clientWidth, h = document.documentElement.clientHeight;
         var playerWidth = 20, playerHeight = 30;
-        var playerVerts = [[-1 * playerWidth / 2, -15], [playerWidth / 2, -15], [0, 15]];
+        
         
         var ignoredTypes = ['HTML', 'HEAD', 'BODY', 'SCRIPT', 'TITLE', 'CANVAS', 'META', 'STYLE', 'LINK'];
         
@@ -22,8 +22,19 @@ function Asteroids(){
         var timeBetweenFire = 150; // how many milliseconds between shots
         var timeBetweenBlink = 250; // milliseconds between enemy blink
         var timeBetweenEnemyUpdate = 400;
-        var bulletRadius = 2;
         
+        function bounceHeight(vec){
+                
+           var a = -(Math.PI/2 - vec.angle())
+           vec.setAngle(a)
+           vec.mul(1.2)
+        }
+            
+        function bounceWidth(vec){
+           var a = -(Math.PI / 2 - vec.angle()) + Math.PI;
+           vec.setAngle(a)
+           vec.mul(1.2)
+        }
         var maxBullets = utils.isIE ? 10 : 20;
         
         /*var highscoreURL = "http://asteroids.glonk.se/highscores.html";
@@ -41,7 +52,7 @@ function Asteroids(){
         function addBlinkStyle(){
             utils.addStylesheet("ASTEROIDSYEAH", ".ASTEROIDSYEAHENEMY { outline: 2px dotted red; }");
         };
-
+    
         var that = this;
 		this.pos = new Vector(100, 100);
         this.lastPos = false;
@@ -130,18 +141,30 @@ function Asteroids(){
         /*
          Misc operations
          */
-        function boundsCheck(vec){
-            if (vec.x > w) 
-                vec.x = 0;
-            else 
-                if (vec.x < 0) 
-                    vec.x = w;
-            
-            if (vec.y > h) 
-                vec.y = 0;
-            else 
-                if (vec.y < 0) 
-                    vec.y = h;
+		var cushion = 5;
+        function boundsCheck(bullet){
+            if (bullet.pos.x > w) {
+				//	bounceWidth(bullet.dir);
+				bounceWidth(bullet.vel);
+				bullet.pos.x = w - cushion;
+			}
+			else 
+				if (bullet.pos.x < 0) {
+					//	bounceWidth(bullet.dir);
+					bounceWidth(bullet.vel);
+					bullet.pos.x = 0 + cushion;
+				}
+            if (bullet.pos.y > h) {
+			//	bounceHeight(bullet.dir);
+				bounceHeight(bullet.vel);
+				bullet.pos.y = h + cushion;
+			}
+			else 
+				if (bullet.pos.y < 0) {
+				//	bounceHeight(bullet.dir);
+					bounceHeight(bullet.vel);
+					bullet.pos.y = 0 + cushion;
+				}
         };
         
         function arrayRemove(array, from, to){
@@ -161,7 +184,16 @@ function Asteroids(){
         this.canvas = document.createElement('canvas');
         this.canvas.setAttribute('width', w);
         this.canvas.setAttribute('height', h);
-        with (this.canvas.style) {
+		this.canvas.style.width = w + "px";
+        this.canvas.style.height = h + "px";
+        this.canvas.style.position = "fixed"
+        this.canvas.style.top = "0px";
+        this.canvas.style.left = "0px";
+        this.canvas.style.bottom = "0px";
+        this.canvas.style.right = "0px";
+        this.canvas.style.zIndex = "10000";
+        
+/*        with (this.canvas.style) {
 			
             width = w + "px";
             height = h + "px";
@@ -171,7 +203,7 @@ function Asteroids(){
             bottom = "0px";
             right = "0px";
             zIndex = "10000";
-        }
+        }*/
         
         if (typeof G_vmlCanvasManager != 'undefined') {
             this.canvas = G_vmlCanvasManager.initElement(this.canvas);
@@ -190,10 +222,7 @@ function Asteroids(){
   //      });
         
         document.body.appendChild(this.canvas);
-        this.ctx = this.canvas.getContext("2d");
         
-        this.ctx.fillStyle = "black";
-        this.ctx.strokeStyle = "black";
         
         // navigation wrapper element
         this.navigation = document.createElement('div');
@@ -243,87 +272,7 @@ function Asteroids(){
         /*
          Context operations
          */
-        this.ctx.clear = function(){
-            this.clearRect(0, 0, w, h);
-        };
-        
-        this.ctx.clear();
-        
-        this.ctx.drawLine = function(xFrom, yFrom, xTo, yTo){
-            this.beginPath();
-            this.moveTo(xFrom, yFrom);
-            this.lineTo(xTo, yTo);
-            this.closePath();
-            this.stroke();
-        };
-        
-        this.ctx.drawRect = function(rect){
-            var old = this.strokeStyle;
-            this.strokeStyle = "red";
-            this.strokeRect(rect.x, rect.y, rect.width, rect.height);
-            this.strokeStyle = old;
-        };
-        
-        this.ctx.drawLineFromLine = function(line){
-            var oldC = this.strokeStyle;
-            this.strokeStyle = "green";
-            this.drawLine(line.p1.x, line.p1.y, line.p2.x, line.p2.y);
-            this.strokeStyle = oldC;
-        };
-        
-        this.ctx.tracePoly = function(verts){
-            this.beginPath();
-            this.moveTo(verts[0][0], verts[0][1]);
-            for (var i = 1; i < verts.length; i++) 
-                this.lineTo(verts[i][0], verts[i][1]);
-            this.closePath();
-        };
-        
-        this.ctx.drawPlayer = function(){
-            this.save();
-            this.translate(that.pos.x, that.pos.y);
-            this.rotate(-that.dir.angle());
-            this.tracePoly(playerVerts);
-            this.stroke();
-            this.restore();
-        };
-        
-        this.ctx.drawBullet = function(pos){
-            this.beginPath();
-            this.arc(pos.x, pos.y, bulletRadius, 0, Math.PI * 2, true);
-            this.closePath();
-            this.fill();
-        };
-        
-        var randomParticleColor = function(){
-            return (['red', 'yellow'])[utils.random(0, 1)];
-        };
-        
-        this.ctx.drawParticle = function(particle){
-            var oldColor = this.strokeStyle;
-            this.strokeStyle = randomParticleColor();
-            this.drawLine(particle.pos.x, particle.pos.y, particle.pos.x - particle.dir.x * 10, particle.pos.y - particle.dir.y * 10);
-            this.strokeStyle = oldColor;
-        };
-        
-        this.ctx.drawFlames = function(flame){
-            this.save();
-            
-            this.translate(that.pos.x, that.pos.y);
-            this.rotate(-that.dir.angle());
-            
-            var oldColor = this.strokeStyle;
-            this.strokeStyle = "red";
-            this.tracePoly(flame.r);
-            this.stroke();
-            
-            this.strokeStyle = "yellow";
-            this.tracePoly(flame.y);
-            this.stroke();
-            
-            this.strokeStyle = oldColor;
-            this.restore();
-        }
+        addContext(that, h, w, playerWidth)
         
         /*
          Game loop
@@ -389,12 +338,7 @@ function Asteroids(){
             
             // fire
             if (this.keysPressed[utils.code(' ')] && nowTime - this.firedAt > timeBetweenFire) {
-                this.bullets.push({
-                    'dir': this.dir.cp(),
-                    'pos': this.pos.cp(),
-                    'startVel': this.vel.cp(),
-                    'cameAlive': nowTime
-                });
+                this.bullets.push(new Bullet(this, nowTime));
                 
                 this.firedAt = nowTime;
                 
@@ -434,64 +378,48 @@ function Asteroids(){
             // add velocity to player (physics)
             this.pos.add(this.vel.mulNew(tDelta));
             
-			function bounceHeight(){
-				
-				var a = -(Math.PI/2 - app.vel.angle())
-				//app.dir.setAngle(a)
-                app.vel.setAngle(a)
-				app.vel.mul(1.2)
-			}
 			
-			function bounceWidth(){
-			
-				var a = -(Math.PI / 2 - app.vel.angle()) + Math.PI;
-               // app.dir.setAngle(a)
-                app.vel.setAngle(a)
-                app.vel.mul(1.2)
-            }
-			
-			var cushion = 5;
             // check bounds X of player, if we go outside we scroll accordingly
             if (this.pos.x > w) {
-				bounceWidth();
+				bounceWidth(this.vel);
                 //window.scrollTo(this.scrollPos.x + 50, this.scrollPos.y);
                 this.pos.x = w - cushion;
             }
             else 
                 if (this.pos.x < 0) {
-                    bounceWidth();
+                    bounceWidth(this.vel);
                     this.pos.x = 0 + cushion ;
                 }
             
             // check bounds Y
             if (this.pos.y > h) {
-                bounceHeight();
+                bounceHeight(this.vel);
                 this.pos.y = h - cushion;
             }
             else 
                 if (this.pos.y < 0) {
-                    bounceHeight();
+                    bounceHeight(this.vel);
                     this.pos.y = 0  + cushion;
                 }
             
             // update positions of bullets
+			
             for (var i = 0; i < this.bullets.length; i++) {
+				var bullet = this.bullets[i];
                 // bullets should only live for 2 seconds
-                if (nowTime - this.bullets[i].cameAlive > 2000) {
+                if (nowTime - bullet.cameAlive > 2000) {
                     arrayRemove(this.bullets, i);
                     i--;
                     continue;
                 }
-                
-                var bulletVel = this.bullets[i].dir.setLengthNew(bulletSpeed * tDelta).add(this.bullets[i].startVel.mulNew(tDelta));
-                var ray = new Line(this.bullets[i].pos.cp(), this.bullets[i].pos.addNew(bulletVel));
-                ray.shift(this.scrollPos);
-                
-                this.bullets[i].pos.add(bulletVel);
-                boundsCheck(this.bullets[i].pos);
-                
+				bullet.pos.add(bullet.vel.mulNew(tDelta));
+				boundsCheck(bullet);
+				
                 // check collisions
-                var didKill = false;
+                var bulletVel = bullet.dir.setLengthNew(bulletSpeed * tDelta).add(bullet.startVel.mulNew(tDelta));
+                var ray = new Line(bullet.pos.cp(), bullet.pos.addNew(bulletVel));
+                ray.shift(this.scrollPos);
+				var didKill = false;
                 for (var x = 0, enemy; enemy = this.enemies[x]; x++) {
                     if (ray.intersectsWithRect(enemy.aSize)) {
                         hasKilled = true;
@@ -504,7 +432,7 @@ function Asteroids(){
                         didKill = true;
                         
                         // create particles at position
-                        utils.addParticles(this.bullets[i].pos, this.particles);
+                        utils.addParticles(bullet.pos, this.particles);
                         break;
                     }
                 }
@@ -551,24 +479,31 @@ function Asteroids(){
             // ==
             
             // clear
-            if (forceChange || this.bullets.length != 0 || this.particles.length != 0 || !this.pos.is(this.lastPos) || this.vel.len() > 0) {
-                this.ctx.clear();
+			
+			this.redraw = function(proceed){
+				if (!proceed){
+					return;
+				}
+				that.ctx.clear();
                 
                 // draw player
-                this.ctx.drawPlayer();
+                that.ctx.drawPlayer();
                 
                 // draw flames
                 if (drawFlame) 
-                    this.ctx.drawFlames(that.flame);
+                    that.ctx.drawFlames(that.flame);
                 
                 // draw bullets
-                for (var i = 0; i < this.bullets.length; i++) 
-                    this.ctx.drawBullet(this.bullets[i].pos);
+                for (var i = 0; i < that.bullets.length; i++) 
+				    
+                    that.ctx.drawBullet(that.bullets[i].pos);
                 
                 // draw particles
-                for (var i = 0; i < this.particles.length; i++) 
-                    this.ctx.drawParticle(this.particles[i]);
-            }
+                for (var i = 0; i < that.particles.length; i++) 
+                    that.ctx.drawParticle(that.particles[i]);
+				
+			}
+            this.redraw((forceChange || this.bullets.length != 0 || this.particles.length != 0 || !this.pos.is(this.lastPos) || this.vel.len() > 0))
             this.lastPos = this.pos;
             
             setTimeout(updateFunc, 1000 / FPS);
@@ -576,7 +511,7 @@ function Asteroids(){
         
         // Start timer
         var updateFunc = function(){
-            that.update.call(that);
+            that.update();
         };
         setTimeout(updateFunc, 1000 / FPS);
         
