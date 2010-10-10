@@ -2,7 +2,7 @@ function Creep(pos, player){
 	var that = this;
 	this.pos = pos;
 	this.dir = player.pos.cp()
-	this.vel = this.dir.cp().normalize().mul(60)
+	this.vel = player.pos.cp().normalize().mul(60)
 	this.getRect = function(){
 		return {
 			x: that.pos.x || 10,

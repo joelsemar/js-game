@@ -283,11 +283,13 @@ function Asteroids(){
             this.updated.enemies = nowTime;
             hasKilled = false;
         }
-        if (this.creeps.length < 1) {
-            var randX = Math.floor(Math.random() * 400);
-            var randY = Math.floor(Math.random() * 400);
-            var newCreepPos = new Vector(randX, randY);
-            this.creeps.push(new Creep(newCreepPos, this));
+        if (!this.creeps.length) {
+			for (var i = 0; i < 10; i++) {
+				var randX = Math.floor(Math.random() * w);
+				var randY = Math.floor(Math.random() * h);
+				var newCreepPos = new Vector(randX, randY);
+				this.creeps.push(new Creep(newCreepPos, this));
+			}
         }
         
         // update flame and timer if needed

@@ -51,11 +51,10 @@ function bulletHandler(app){
             }
         }
         
-        for (var i = 0; i < app.creeps.length; i++) {
-            var creep = app.creeps[i];
+        for (var j = 0, creep;creep = app.creeps[j]; j++) {
             if (ray.intersectsWithRect(creep.getRect())) {
                hasKilled = true;
-               utils.arrayRemove(app.creeps, i)
+               utils.arrayRemove(app.creeps, j)
                didKill = true
                utils.addParticles(bullet.pos, app.particles);
                  break;
