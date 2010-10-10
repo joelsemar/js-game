@@ -160,7 +160,7 @@ function Asteroids(){
         if (obj.pos.y > h) {
             //	bounceHeight(obj.dir);
             bounceHeight(obj.vel);
-            obj.pos.y = h + cushion;
+            obj.pos.y = h - cushion;
         }
         else 
             if (obj.pos.y < 0) {
@@ -337,8 +337,6 @@ function Asteroids(){
 				forcechange = true;
             }
         }
-        
-        
         
         if (this.keysPressed[utils.code('esc')]) {
             events.destroy(this);
