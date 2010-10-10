@@ -1,11 +1,23 @@
 
 var utils = (function(){
     var isIE = !!window.ActiveXObject; // IE gets less performance-intensive	
-	var hiddenTypes = ['BR', 'HR'];
-	var maxParticles = isIE ? 10 : 40;
+    var hiddenTypes = ['BR', 'HR'];
+    var maxParticles = isIE ? 10 : 40;
+	function bounceHeight(vec){
+    
+        var a = -(Math.PI / 2 - vec.angle())
+        vec.setAngle(a)
+        vec.mul(1.5)
+    }
+    
+    function bounceWidth(vec){
+        var a = -(Math.PI / 2 - vec.angle()) + Math.PI;
+        vec.setAngle(a)
+        vec.mul(1.5)
+    }
     return {
-		
-		isIE: this.isIE,
+    
+        isIE: this.isIE,
         /* 
          Math operations
          */
@@ -103,21 +115,6 @@ var utils = (function(){
             }
         },
         
-        hasOnlyTextualChildren: function(element){
-            if (this.indexOf(hiddenTypes, element.tagName) != -1) 
-                return false;
-            if (element.offsetWidth == 0 && element.offsetHeight == 0) 
-                return false;
-            for (var i = 0; i < element.childNodes.length; i++) {
-                // <br /> doesn't count... and empty elements
-                if (element.childNodes[i].nodeType != 3 &&
-                this.indexOf(hiddenTypes, element.childNodes[i].tagName) == -1 &&
-                element.childNodes[i].childNodes.length != 0) 
-                    return false;
-            }
-            return true;
-        },
-        
         indexOf: function(arr, item, from){
             if (arr.indexOf) 
                 return arr.indexOf(item, from);
@@ -157,6 +154,31 @@ var utils = (function(){
             if (stylesheet) {
                 stylesheet.parentNode.removeChild(stylesheet);
             }
+        },
+        boundsCheck: function(obj){
+            var cushion = 5;
+            if (obj.pos.x > app.w) {
+                //  bounceWidth(obj.dir);
+                bounceWidth(obj.vel);
+                obj.pos.x = app.w - cushion;
+            }
+            else 
+                if (obj.pos.x < 0) {
+                    //  bounceWidth(obj.dir);
+                    bounceWidth(obj.vel);
+                    obj.pos.x = 0 + cushion;
+                }
+            if (obj.pos.y > app.h) {
+                //  bounceHeight(obj.dir);
+                bounceHeight(obj.vel);
+                obj.pos.y = app.h - cushion;
+            }
+            else 
+                if (obj.pos.y < 0) {
+                    //  bounceHeight(obj.dir);
+                    bounceHeight(obj.vel);
+                    obj.pos.y = 0 + cushion;
+                }
         }
     }
 })();

@@ -1,7 +1,8 @@
 var events = function(){
     var eventKeydown = function(event){
         event = event || window.event;
-        app.keysPressed[event.keyCode] = true;
+        
+		app.firstPlayer.keysPressed[event.keyCode] = true;
         
         switch (event.keyCode) {
             case utils.code(' '):
@@ -28,7 +29,7 @@ var events = function(){
     
     var eventKeyup = function(event){
         event = event || window.event;
-        app.keysPressed[event.keyCode] = false;
+        app.firstPlayer.keysPressed[event.keyCode] = false;
         switch (event.keyCode) {
             case utils.code('B'):
                 utils.removeStylesheet("ASTEROIDSYEAH");

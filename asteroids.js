@@ -4,38 +4,36 @@ function Asteroids(){
 
     // configuration directives are placed in local variables
     var w = document.documentElement.clientWidth, h = document.documentElement.clientHeight;
-    var playerWidth = 20, playerHeight = 30;
-    
-    
+    this.w = w;
+    this.h = h;
     var ignoredTypes = ['HTML', 'HEAD', 'BODY', 'SCRIPT', 'TITLE', 'CANVAS', 'META', 'STYLE', 'LINK'];
     
-    
+    this.creepImage = new Image();
+    this.creepImage.src = 'static/images/alien.png'
     var FPS = utils.isIE ? 30 : 50;
     
-    // units/second
-    var acc = 300;
-    var maxSpeed = 700;
-    var creepMaxSpeed = 200;
-    var rotSpeed = 360; // one rotation per second
+    
+    
+    
     var particleSpeed = 400;
     
-    var timeBetweenFire = 150; // how many milliseconds between shots
+    
     var timeBetweenBlink = 250; // milliseconds between enemy blink
     var timeBetweenEnemyUpdate = 400;
     
-    function bounceHeight(vec){
+    this.bounceHeight = function(vec){
     
         var a = -(Math.PI / 2 - vec.angle())
         vec.setAngle(a)
         vec.mul(1.5)
     }
     
-    function bounceWidth(vec){
+    this.bounceWidth = function(vec){
         var a = -(Math.PI / 2 - vec.angle()) + Math.PI;
         vec.setAngle(a)
         vec.mul(1.5)
     }
-    var maxBullets = utils.isIE ? 10 : 20;
+    this.maxBullets = utils.isIE ? 10 : 20;
     
     /*var highscoreURL = "http://asteroids.glonk.se/highscores.html";
      var closeURL = "http://asteroids.glonk.se/close.png";*/
@@ -43,140 +41,23 @@ function Asteroids(){
     this.enemiesKilled = 0;
     
     // generated every 10 ms
-    this.flame = {
-        r: [],
-        y: []
-    };
-    
-    // blink style
-    function addBlinkStyle(){
-        utils.addStylesheet("ASTEROIDSYEAH", ".ASTEROIDSYEAHENEMY { outline: 2px dotted red; }");
-    };
     
     var that = this;
-    this.pos = new Vector(100, 100);
-    this.lastPos = false;
-    this.vel = new Vector(0, 0);
-    this.dir = new Vector(0, 1);
-    this.keysPressed = {};
-    this.firedAt = false;
     this.updated = {
         enemies: new Date().getTime(), // the time before the enemyIndex was last updated
-        flame: new Date().getTime(), // the time the flame was last updated
         blink: {
             time: 0,
             isActive: false
         }
     };
-    this.scrollPos = new Vector(0, 0);
-    
+    this.players = [];
+    this.firstPlayer = new Player(1)
+    this.players.push(this.firstPlayer);
     this.bullets = [];
     this.creeps = [];
-    // Enemies lay first in this.enemies, when they are shot they are moved to this.dieing
-    this.enemies = [];
-    this.dieing = [];
-    this.totalEnemies = 0;
     
     // Particles are created when something is shot
     this.particles = [];
-    
-    this.creepImg = new Image();
-    this.creepImg.src = 'static/images/alien.png'
-    
-    // things to shoot is everything textual and an element of type not specified in types AND not a navigation element (see further down)
-    function updateEnemyIndex(){
-        for (var i = 0, enemy; enemy = that.enemies[i]; i++) {
-            utils.removeClass(enemy, "ASTEROIDSYEAHENEMY");
-        }
-        
-        var all = document.body.getElementsByTagName('*');
-        that.enemies = [];
-        for (var i = 0; i < all.length; i++) {
-            // elements with className ASTEROIDSYEAH are part of the "game"
-            if (utils.indexOf(ignoredTypes, all[i].tagName) == -1 && hasOnlyTextualChildren(all[i]) && all[i].className != "ASTEROIDSYEAH") {
-                all[i].aSize = utils.size(all[i]);
-                that.enemies.push(all[i]);
-                
-                utils.addClass(all[i], "ASTEROIDSYEAHENEMY");
-                
-                // this is only for enemycounting
-                if (!all[i].aAdded) {
-                    all[i].aAdded = true;
-                    that.totalEnemies++;
-                }
-            }
-        }
-    };
-    updateEnemyIndex();
-    
-    function createFlames(){
-        // Firstly create red flames
-        that.flame.r = [[0, 0]];
-        that.flame.y = [[0, 0]];
-        
-        var rWidth = playerWidth;
-        var rIncrease = playerWidth * 0.1;
-        for (var x = 0; x < rWidth; x += rIncrease) 
-            that.flame.r.push([x, -utils.random(2, 7)]);
-        that.flame.r.push([rWidth, 0]);
-        
-        // yellow flames
-        var yWidth = playerWidth * 0.6;
-        var yIncrease = yWidth * 0.2;
-        for (var x = 0; x < yWidth; x += yIncrease) 
-            that.flame.y.push([x, -utils.random(1, 4)]);
-        that.flame.y.push([yWidth, 0]);
-        
-        // Center 'em
-        var halfR = rWidth / 2, halfY = yWidth / 2;
-        for (var i = 0; i < that.flame.r.length; i++) {
-            that.flame.r[i][0] -= halfR;
-            that.flame.r[i][1] -= playerHeight / 2;
-        }
-        
-        for (var i = 0; i < that.flame.y.length; i++) {
-            that.flame.y[i][0] -= halfY;
-            that.flame.y[i][1] -= playerHeight / 2;
-        }
-    };
-    createFlames();
-    
-    /*
-     Misc operations
-     */
-    var cushion = 5;
-    this.boundsCheck = function(obj){
-        if (obj.pos.x > w) {
-            //	bounceWidth(obj.dir);
-            bounceWidth(obj.vel);
-            obj.pos.x = w - cushion;
-        }
-        else 
-            if (obj.pos.x < 0) {
-                //	bounceWidth(obj.dir);
-                bounceWidth(obj.vel);
-                obj.pos.x = 0 + cushion;
-            }
-        if (obj.pos.y > h) {
-            //	bounceHeight(obj.dir);
-            bounceHeight(obj.vel);
-            obj.pos.y = h - cushion;
-        }
-        else 
-            if (obj.pos.y < 0) {
-                //	bounceHeight(obj.dir);
-                bounceHeight(obj.vel);
-                obj.pos.y = 0 + cushion;
-            }
-    };
-    
-    
-    function hasOnlyTextualChildren(element){
-        return utils.hasOnlyTextualChildren(element);
-    }
-    
-    window.hasOnlyTextualChildren = hasOnlyTextualChildren;
-    
     /*
      == Setup ==
      */
@@ -251,193 +132,63 @@ function Asteroids(){
     this.navigation.appendChild(this.debug);
     
     events.addEvents(that);
+    addContext(that, h, w)
     
-    /*
-     Context operations
-     */
-    addContext(that, h, w, playerWidth)
-    
-    /*
-     Game loop
-     */
-    utils.addParticles(this.pos, this.particles);
+    utils.addParticles(this.firstPlayer.pos, this.particles);
     utils.addClass(document.body, 'ASTEROIDSYEAH');
     
     var isRunning = true;
     var lastUpdate = new Date().getTime();
     var hasKilled = false;
-    
+    this.forceChange = false;
     this.update = function(){
-        that.forceChange = false;
+        this.now = new Date().getTime();
+        this.forceChange = false;
+        this.tDelta = (this.now - lastUpdate) / 1000;
+        lastUpdate = this.now;
         
-        // ==
-        // logic
-        // ==
-        var nowTime = new Date().getTime();
-        this.tDelta = (nowTime - lastUpdate) / 1000;
-        lastUpdate = nowTime;
-        
-        // check enemy index timer and update that if needed
-        if (nowTime - this.updated.enemies > timeBetweenEnemyUpdate && hasKilled) {
-            updateEnemyIndex();
-            this.updated.enemies = nowTime;
-            hasKilled = false;
-        }
+        //just a stand in for a 'waves' approach, when there are 0 creeps,.. create 10
         if (!this.creeps.length) {
-			for (var i = 0; i < 10; i++) {
-				var randX = Math.floor(Math.random() * w);
-				var randY = Math.floor(Math.random() * h);
-				var newCreepPos = new Vector(randX, randY);
-				this.creeps.push(new Creep(newCreepPos, this));
-			}
-        }
-        
-        // update flame and timer if needed
-        var drawFlame = false;
-        if (nowTime - this.updated.flame > 50) {
-            createFlames();
-            this.updated.flame = nowTime;
-        }
-        
-        this.scrollPos.x = window.pageXOffset || document.documentElement.scrollLeft;
-        this.scrollPos.y = window.pageYOffset || document.documentElement.scrollTop;
-        
-        // update player
-        // move forward
-        if (this.keysPressed[utils.code('up')]) {
-            this.vel.add(this.dir.mulNew(acc * this.tDelta));
-            
-            drawFlame = true;
-        }
-        else {
-            // decrease speed of player
-            this.vel.mul(0.96);
-        }
-        
-        // rotate counter-clockwise
-        if (this.keysPressed[utils.code('left')]) {
-            that.forceChange = true;
-            this.dir.rotate(utils.radians(rotSpeed * this.tDelta * -1));
-        }
-        
-        // rotate clockwise
-        if (this.keysPressed[utils.code('right')]) {
-            that.forceChange = true;
-            this.dir.rotate(utils.radians(rotSpeed * this.tDelta));
-        }
-        
-        // fire
-        if (this.keysPressed[utils.code(' ')] && nowTime - this.firedAt > timeBetweenFire) {
-            this.bullets.push(new Bullet(this, nowTime));
-            
-            this.firedAt = nowTime;
-            
-            if (this.bullets.length > maxBullets) {
-                utils.arrayRemove(this.bullets, 0);
-				forcechange = true;
+            for (var i = 0; i < 10; i++) {
+                var randX = Math.floor(Math.random() * w);
+                var randY = Math.floor(Math.random() * h);
+                var newCreepPos = new Vector(randX, randY);
+                this.creeps.push(new Creep(newCreepPos, this.firstPlayer));
             }
         }
         
-        if (this.keysPressed[utils.code('esc')]) {
-            events.destroy(this);
-            return;
+        for (var p = 0, player = this.players[p]; p < this.players.length; p++) {
+            player.update.call(player);
         }
         
-        // cap speed
-        if (this.vel.len() > maxSpeed) {
-            this.vel.setLength(maxSpeed);
+        for (var c = 0;c < this.creeps.length; c++) {
+            this.creeps[c].update();
         }
-        // add velocity to player (physics)
-        this.pos.add(this.vel.mulNew(this.tDelta));
         
-        
-        // check bounds X of player, if we go outside we scroll accordingly
-        if (this.pos.x > w) {
-            bounceWidth(this.vel);
-            //window.scrollTo(this.scrollPos.x + 50, this.scrollPos.y);
-            this.pos.x = w - cushion;
-        }
-        else 
-            if (this.pos.x < 0) {
-                bounceWidth(this.vel);
-                this.pos.x = 0 + cushion;
-            }
-        
-        // check bounds Y
-        if (this.pos.y > h) {
-            bounceHeight(this.vel);
-            this.pos.y = h - cushion;
-        }
-        else 
-            if (this.pos.y < 0) {
-                bounceHeight(this.vel);
-                this.pos.y = 0 + cushion;
-            }
         // update positions of bullets
         bulletHandler(this);
-        
-        // Remove all dieing elements
-        for (var i = 0, enemy; enemy = this.dieing[i]; i++) {
-            this.enemiesKilled++;
-            
-            try {
-                enemy.parentNode.removeChild(enemy);
-            } 
-            catch (e) {
-            }
-            
-            this.points.innerHTML = this.enemiesKilled * 10;
-            this.points.title = this.enemiesKilled + "/" + this.totalEnemies;
-            
-            utils.arrayRemove(this.dieing, i);
-            i--;
-        }
         
         // update particles position
         for (var i = 0; i < this.particles.length; i++) {
             this.particles[i].pos.add(this.particles[i].dir.mulNew(particleSpeed * this.tDelta * Math.random()));
             
-            if (nowTime - this.particles[i].cameAlive > 1000) {
+            if (this.now - this.particles[i].cameAlive > 1000) {
                 utils.arrayRemove(this.particles, i);
                 i--;
                 that.forceChange = true;
                 continue;
             }
         }
-        
-        for (var i = 0; i < this.creeps.length; i++) {
-            var creep = this.creeps[i]
-            creep.pos.add(creep.vel.mulNew(this.tDelta));
-            this.boundsCheck(creep);
-            if (creep.vel.len() > creepMaxSpeed) {
-                creep.vel.setLength(creepMaxSpeed);
-            }
-            
-        }
-        
-        // ==
-        // drawing
-        // ==
-        
-        // clear
-        
+        // the following is jus there so I can call app.redraw(true) from the console
         this.redraw = function(proceed){
-            redraw(that, drawFlame, proceed)
+            redraw(app, proceed)
         }
-        this.redraw((that.forceChange || this.bullets.length || this.particles.length || this.creeps.length || !this.pos.is(this.lastPos) || this.vel.len()))
-        this.lastPos = this.pos;
-        
-        setTimeout(updateFunc, 1000 / FPS);
+        this.redraw((that.forceChange || this.bullets.length || this.particles.length || this.creeps.length))
+        setTimeout(function(){
+            app.update.call(app)
+        }, 1000 / FPS);
         
     }
-    // Start timer
-    var updateFunc = function(){
-        that.update();
-    };
-    setTimeout(updateFunc, 1000 / FPS);
-    
-    
-    
 }
 
 function init(){
@@ -455,22 +206,16 @@ function init(){
         script.setAttribute('type', 'text/javascript');
         script.onreadystatechange = function(){
             if (script.readyState == 'loaded' || script.readyState == 'completed') {
-                new Asteroids();
+                app = new Asteroids();
             }
         };
         script.src = "excanvas.js";
         document.getElementsByTagName('head')[0].appendChild(script);
     }
     else 
-        for (var i = 0; i < 0; i++) {
-            var d = document.createElement('div')
-            d.className = 'block';
-            d.style.width = Math.floor(Math.random() * 400) + 'px';
-            d.style.height = Math.floor(Math.random() * 400) + 'px';
-            d.style.marginLeft = Math.floor(Math.random() * 1100) + 'px';
-            document.body.appendChild(d);
-            
-        }
-    app = new Asteroids();
-    
+	    app = new Asteroids();
+	    setTimeout(function(){
+	        app.update.call(app),
+			1000
+    });
 };

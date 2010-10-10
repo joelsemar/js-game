@@ -1,6 +1,6 @@
 
 
-function addContext(that, h, w, playerWidth){
+function addContext(that, h, w){
     var bulletRadius = 2;
     var strokeStyle = 'black'
     var fillStyle = 'red'
@@ -10,7 +10,6 @@ function addContext(that, h, w, playerWidth){
     that.ctx.strokeStyle = "black";
     
     
-    var playerVerts = [[-1 * playerWidth / 2, -15], [playerWidth / 2, -15], [0, 15]];
     var creepVerts = [[], [], []]
     that.ctx.clear = function(){
         this.clearRect(0, 0, w, h);
@@ -41,6 +40,7 @@ function addContext(that, h, w, playerWidth){
     };
     
     that.ctx.tracePoly = function(verts){
+		
         this.beginPath();
         this.moveTo(verts[0][0], verts[0][1]);
         for (var i = 1; i < verts.length; i++) 
@@ -50,16 +50,16 @@ function addContext(that, h, w, playerWidth){
     
     that.ctx.drawPlayer = function(player){
         this.save();
-        this.translate(player.pos.x, player.pos.y);
+		this.translate(player.pos.x, player.pos.y);
         this.rotate(-player.dir.angle());
-        this.tracePoly(playerVerts);
+        this.tracePoly(player.polyVerts);
         this.stroke();
         this.restore();
     };
     
     that.ctx.drawCreep = function(creep){
         this.save();
-        this.drawImage(that.creepImg, creep.pos.x, creep.pos.y)
+        this.drawImage(creep.img, creep.pos.x, creep.pos.y)
         this.rotate(-creep.dir.angle());
         this.restore();
     }
@@ -82,11 +82,11 @@ function addContext(that, h, w, playerWidth){
         this.strokeStyle = oldColor;
     };
     
-    that.ctx.drawFlames = function(flame){
+    that.ctx.drawFlames = function(player){
         this.save();
-        
-        this.translate(that.pos.x, that.pos.y);
-        this.rotate(-that.dir.angle());
+        var flame = player.flame
+        this.translate(player.pos.x, player.pos.y);
+        this.rotate(-player.dir.angle());
         
         var oldColor = strokeStyle;
         this.strokeStyle = "red";
@@ -106,7 +106,7 @@ function addContext(that, h, w, playerWidth){
     
 }
 
-function redraw(app, drawFlame,  proceed){
+function redraw(app, proceed){
     context = app.ctx
     if (!proceed) {
         return;
@@ -114,10 +114,10 @@ function redraw(app, drawFlame,  proceed){
     context.clear();
     
     // draw player
-    context.drawPlayer(app);
+    context.drawPlayer(app.firstPlayer);
     // draw flames
-    if (drawFlame) 
-        context.drawFlames(app.flame);
+    if (app.firstPlayer.drawFlame) 
+        context.drawFlames(app.firstPlayer);
     
     // draw bullets
     for (var i = 0; i < app.bullets.length; i++) {

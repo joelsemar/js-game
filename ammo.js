@@ -11,7 +11,7 @@ function Bullet(player){
 
 
 
-function bulletHandler(app){
+function bulletHandler(){
     var nowTime = new Date().getTime()
     for (var i = 0; i < app.bullets.length; i++) {
 		var bullet = app.bullets[i];
@@ -27,29 +27,12 @@ function bulletHandler(app){
             continue;
         }
         bullet.pos.add(bullet.vel.mulNew(app.tDelta));
-        app.boundsCheck(bullet);
+        utils.boundsCheck(bullet);
         
         // check collisions
         var bulletVel = bullet.dir.setLengthNew(bulletSpeed * app.tDelta).add(bullet.startVel.mulNew(app.tDelta));
         var ray = new Line(bullet.pos.cp(), bullet.pos.addNew(bulletVel));
-        ray.shift(app.scrollPos);
         var didKill = false;
-        for (var x = 0, enemy; enemy = app.enemies[x]; x++) {
-            if (ray.intersectsWithRect(enemy.aSize)) {
-                hasKilled = true;
-                
-                // move to dieing
-                app.dieing.push(enemy);
-                utils.arrayRemove(app.enemies, x);
-                
-                // the shot was a kill
-                didKill = true;
-                
-                // create particles at position
-                utils.addParticles(bullet.pos, app.particles);
-                break;
-            }
-        }
         
         for (var j = 0, creep;creep = app.creeps[j]; j++) {
             if (ray.intersectsWithRect(creep.getRect())) {
