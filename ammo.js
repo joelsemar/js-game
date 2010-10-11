@@ -1,7 +1,6 @@
 var bulletSpeed = 700;
 
 function Bullet(shooter, speed, type){
-	debugger;
     var speed = speed || 500;
 	this.shooter_type = type;
     this.pos = shooter.pos.cp();
@@ -9,7 +8,7 @@ function Bullet(shooter, speed, type){
     this.startVel = shooter.dir.cp();
     this.vel = shooter.dir.cp().normalize().mul(speed);
     this.cameAlive = new Date().getTime();
-    this.damage = 25;
+    this.damage = Math.floor(Math.random() * 50 + 10);
 }
 
 
@@ -38,12 +37,12 @@ function bulletHandler(){
         var hit = false;
         
         for (var c = 0, creep; creep = app.creeps[c]; c++) {
-			debugger;
             if (creep.type == bullet.shooter_type) {
                 continue;
             }
             if (ray.intersectsWithRect(creep.getRect())) {
                 hit = true;
+				utils.damagePopup(creep.pos, bullet.damage)
                 creep.life -= bullet.damage;
                 creep.pos = creep.pos.add(bullet.vel.mulNew(app.tDelta))
                 break;
@@ -55,6 +54,7 @@ function bulletHandler(){
             }
             if (ray.intersectsWithRect(player.getRect())) {
                 hit = true;
+				utils.damagePopup(player.pos, bullet.damage)
                 player.life -= bullet.damage;
                 player.pos = player.pos.add(bullet.vel.mulNew(app.tDelta))
                 break;

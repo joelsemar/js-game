@@ -7,7 +7,7 @@ function Player(id, width, height){
     
     this.life = 500;
     
-    var timeBetweenFire = 150; // how many milliseconds between shots
+    var timeBetweenFire = 550; // how many milliseconds between shots
     var w = document.documentElement.clientWidth, h = document.documentElement.clientHeight;
     this.pos = new Vector(h / 2, w / 2);
     this.lastPos = false;
@@ -19,7 +19,7 @@ function Player(id, width, height){
         r: [],
         y: []
     };
-    this.firedAt = false;
+    this.last_fired = false;
     // units/second
     var acc = 300;
     this.updated = {
@@ -92,9 +92,9 @@ function Player(id, width, height){
         }
         
         // fire
-        if (this.keysPressed[utils.code(' ')] && now - this.firedAt > timeBetweenFire) {
+        if (this.keysPressed[utils.code(' ')] && now - this.last_fired > timeBetweenFire) {
             app.bullets.push(new Bullet(this, false, this.type));
-            this.firedAt = now;
+            this.last_fired = now;
             if (app.bullets.length > app.maxBullets) {
                 utils.arrayRemove(app.bullets, 0);
                 forcechange = true;

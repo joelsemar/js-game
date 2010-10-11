@@ -14,7 +14,7 @@ function Asteroids(){
     var particleSpeed = 400;
     var timeBetweenBlink = 250; // milliseconds between enemy blink
     var timeBetweenEnemyUpdate = 400;
-    this.maxBullets = utils.isIE ? 10 : 50;
+    this.maxBullets = utils.isIE ? 10 : 20;
     
     /*var highscoreURL = "http://asteroids.glonk.se/highscores.html";
      var closeURL = "http://asteroids.glonk.se/close.png";*/
@@ -203,7 +203,7 @@ function init(){
     else 
 	    app = new Asteroids();
 	    setTimeout(function(){
-	        app.update.call(app),
+	        app.update.call(app)},
 			1000
-    });
+    );
 };

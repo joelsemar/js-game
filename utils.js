@@ -3,17 +3,15 @@ var utils = (function(){
     var isIE = !!window.ActiveXObject; // IE gets less performance-intensive	
     var hiddenTypes = ['BR', 'HR'];
     var maxParticles = isIE ? 10 : 40;
-	function bounceHeight(vec){
+    function bounceHeight(vec){
     
         var a = -(Math.PI / 2 - vec.angle())
         vec.setAngle(a)
-        vec.mul(1.5)
     }
     
     function bounceWidth(vec){
         var a = -(Math.PI / 2 - vec.angle()) + Math.PI;
         vec.setAngle(a)
-        vec.mul(1.5)
     }
     return {
     
@@ -179,6 +177,26 @@ var utils = (function(){
                     bounceHeight(obj.vel);
                     obj.pos.y = 0 + cushion;
                 }
+        },
+        damagePopup: function(pos, val){
+            var s = document.createElement('span');
+			s.id = 'p_' + app.now;
+            s.innerHTML = val;
+            with (s.style) {
+                font = "Arial,sans-serif";
+                position = "fixed";
+                zIndex = "10001";
+                top = pos.y + "px";
+                left = pos.x + "px";
+                textAlign = "right";
+				width = '20px';
+				height = '20px';
+            }
+            document.body.appendChild(s)
+			function callBack(){
+				s.parentNode.removeChild(s);
+			}
+			setTimeout(callBack, 2000)
         }
     }
 })();

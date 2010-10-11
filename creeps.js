@@ -17,7 +17,8 @@ function Creep(pos, player){
 		}
 		
 	}
-    	
+    var timeBetweenFire = 1500; // how many milliseconds between shots
+    this.last_fired = false;
 	this.update = function(){
 		if (this.life < 1){
 			utils.arrayRemove(app.creeps, utils.indexOf(app.creeps, this));
@@ -29,8 +30,9 @@ function Creep(pos, player){
 		  this.vel = new Vector(this.target.pos.x - this.pos.x , this.target.pos.y - this.pos.y).normalize().mul(200);	
 		}
 		
-		if (Math.floor(Math.random() * 100) > 97) {
+		if (app.now - this.last_fired > timeBetweenFire) {
 		  this.dir = new Vector(this.target.pos.x - this.pos.x , this.target.pos.y - this.pos.y).normalize();
+		  this.last_fired = app.now;
 		  app.bullets.push(new Bullet(this, 200, this.type));
 		}
         utils.boundsCheck(this);
