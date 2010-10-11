@@ -11,29 +11,10 @@ function Asteroids(){
     this.creepImage = new Image();
     this.creepImage.src = 'static/images/alien.png'
     var FPS = utils.isIE ? 30 : 50;
-    
-    
-    
-    
     var particleSpeed = 400;
-    
-    
     var timeBetweenBlink = 250; // milliseconds between enemy blink
     var timeBetweenEnemyUpdate = 400;
-    
-    this.bounceHeight = function(vec){
-    
-        var a = -(Math.PI / 2 - vec.angle())
-        vec.setAngle(a)
-        vec.mul(1.5)
-    }
-    
-    this.bounceWidth = function(vec){
-        var a = -(Math.PI / 2 - vec.angle()) + Math.PI;
-        vec.setAngle(a)
-        vec.mul(1.5)
-    }
-    this.maxBullets = utils.isIE ? 10 : 20;
+    this.maxBullets = utils.isIE ? 10 : 50;
     
     /*var highscoreURL = "http://asteroids.glonk.se/highscores.html";
      var closeURL = "http://asteroids.glonk.se/close.png";*/
@@ -41,7 +22,6 @@ function Asteroids(){
     this.enemiesKilled = 0;
     
     // generated every 10 ms
-    
     var that = this;
     this.updated = {
         enemies: new Date().getTime(), // the time before the enemyIndex was last updated
@@ -126,6 +106,15 @@ function Asteroids(){
     
     this.points.innerHTML = "0";
     
+	//life
+	
+    this.life = document.getElementById('life');
+	this.life_value = document.getElementById('life-value');
+    this.life.style.font = "28pt Arial, sans-serif";
+    this.life.style.fontWeight = "bold";
+    this.life.className = "ASTEROIDSYEAH";
+    this.navigation.appendChild(this.life); 
+	
     this.debug = document.createElement('span');
     this.debug.className = "ASTEROIDSYEAH";
     this.debug.innerHTML = "";
@@ -134,7 +123,6 @@ function Asteroids(){
     events.addEvents(that);
     addContext(that, h, w)
     
-    utils.addParticles(this.firstPlayer.pos, this.particles);
     utils.addClass(document.body, 'ASTEROIDSYEAH');
     
     var isRunning = true;
@@ -149,7 +137,7 @@ function Asteroids(){
         
         //just a stand in for a 'waves' approach, when there are 0 creeps,.. create 10
         if (!this.creeps.length) {
-            for (var i = 0; i < 10; i++) {
+            for (var i = 0; i < 5; i++) {
                 var randX = Math.floor(Math.random() * w);
                 var randY = Math.floor(Math.random() * h);
                 var newCreepPos = new Vector(randX, randY);

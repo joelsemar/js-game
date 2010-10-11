@@ -102,11 +102,11 @@ var utils = (function(){
             return array.push.apply(array, rest);
         },
         
-        addParticles: function(startPos, particles){
+        addParticles: function(startPos){
             var time = new Date().getTime();
             var amount = maxParticles;
             for (var i = 0; i < amount; i++) {
-                particles.push({
+                app.particles.push({
                     // random direction
                     dir: (new Vector(Math.random() * 20 - 10, Math.random() * 20 - 10)).normalize(),
                     pos: startPos.cp(),

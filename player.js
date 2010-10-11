@@ -1,21 +1,26 @@
 function Player(id, width, height){
     var that = this;
     this.id = id;
+    this.type = 'player';
     this.width = width || 20, this.height = height || 30;
     this.polyVerts = [[-1 * this.width / 2, -15], [this.width / 2, -15], [0, 15]];
+    
+    this.life = 500;
+    
     var timeBetweenFire = 150; // how many milliseconds between shots
-    this.pos = new Vector(100, 100);
+    var w = document.documentElement.clientWidth, h = document.documentElement.clientHeight;
+    this.pos = new Vector(h / 2, w / 2);
     this.lastPos = false;
     this.vel = new Vector(0, 0);
     this.dir = new Vector(0, 1);
     this.keysPressed = {};
     this.maxSpeed = 700;
-	this.flame = {
+    this.flame = {
         r: [],
         y: []
     };
-	this.firedAt = false;
-	// units/second
+    this.firedAt = false;
+    // units/second
     var acc = 300;
     this.updated = {
         flame: new Date().getTime(), // the time the flame was last updated
@@ -55,7 +60,27 @@ function Player(id, width, height){
         
     };
     this.createFlames()
+    
+    this.getRect = function(){
+        return {
+            x: that.pos.x || 10,
+            y: that.pos.y || 10,
+            width: that.width,
+            height: that.height
+        }
+        
+    }
+    
     this.update = function(){
+        if (this.id == 1) {
+            app.life_value.innerHTML = this.life;
+            if (this.life < 1) {
+                alert('DEAD');
+                location.reload(true);
+            }
+        }
+        
+        this.drawFlame = false;
         var now = app.now
         //apply our velocity
         this.pos.add(this.vel.mulNew(app.tDelta));
@@ -65,11 +90,22 @@ function Player(id, width, height){
             this.createFlames();
             this.updated.flame = now;
         }
+        
+        // fire
+        if (this.keysPressed[utils.code(' ')] && now - this.firedAt > timeBetweenFire) {
+            app.bullets.push(new Bullet(this, false, this.type));
+            this.firedAt = now;
+            if (app.bullets.length > app.maxBullets) {
+                utils.arrayRemove(app.bullets, 0);
+                forcechange = true;
+            }
+        }
+        
         if (this.keysPressed[utils.code('up')]) {
             this.vel.add(this.dir.mulNew(acc * app.tDelta));
             this.drawFlame = true;
         }
-        if (this.keysPressed[utils.code('down')]) {
+        else {
             // decrease speed of player
             this.vel.mul(0.96);
         }
@@ -86,18 +122,6 @@ function Player(id, width, height){
             this.dir.rotate(utils.radians(this.rotSpeed * app.tDelta));
         }
         
-        // fire
-        if (this.keysPressed[utils.code(' ')] && now - this.firedAt > timeBetweenFire) {
-            app.bullets.push(new Bullet(this));
-            
-            this.firedAt = now;
-            
-            if (app.bullets.length > app.maxBullets) {
-                utils.arrayRemove(app.bullets, 0);
-                forcechange = true;
-            }
-        }
-        
         if (this.keysPressed[utils.code('esc')]) {
             events.destroy(this);
             return;
@@ -112,26 +136,4 @@ function Player(id, width, height){
         }
         
     }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
 }
