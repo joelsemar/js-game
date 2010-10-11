@@ -7,9 +7,9 @@ function Player(id, width, height){
     
     this.life = 500;
     
-    var timeBetweenFire = 550; // how many milliseconds between shots
+    var timeBetweenFire = 350; // how many milliseconds between shots
     var w = document.documentElement.clientWidth, h = document.documentElement.clientHeight;
-    this.pos = new Vector(h / 2, w / 2);
+    this.pos = new Vector(w/ 2, h / 2);
     this.lastPos = false;
     this.vel = new Vector(0, 0);
     this.dir = new Vector(0, 1);
