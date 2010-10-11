@@ -8,7 +8,7 @@ function Bullet(shooter, speed, type){
     this.startVel = shooter.dir.cp();
     this.vel = shooter.dir.cp().normalize().mul(speed);
     this.cameAlive = new Date().getTime();
-    this.damage = Math.floor(Math.random() * 50 + 10);
+    this.damage = Math.floor(Math.random() * 50 + shooter.base_damage);
 }
 
 

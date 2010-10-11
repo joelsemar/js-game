@@ -2,6 +2,7 @@ function Creep(pos, player){
 	var that = this;
 	this.type = 'creep';
 	this.pos = pos;
+	this.base_damage = 5;
 	this.target = player
 	this.dir = player.pos.cp().mul(-1)
 	this.vel = new Vector(player.pos.x - pos.x, player.pos.y - pos.y).normalize().mul(100);
