@@ -9,6 +9,13 @@ Line.prototype = {
         this.p2.add(pos);
     },
     
+	len: function(){
+        var l = Math.sqrt(Math.pow(this.p2.x - this.p1.x, 2) + Math.pow(this.p2.y - this.p1.y, 2));
+        if (l < 0.005 && l > -0.005) 
+            return 0;
+        return l;
+    },
+	
     intersectsWithRect: function(rect){
         var LL = new Vector(rect.x, rect.y + rect.height);
         var UL = new Vector(rect.x, rect.y);

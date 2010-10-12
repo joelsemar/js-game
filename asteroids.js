@@ -14,7 +14,7 @@ function Asteroids(){
     var particleSpeed = 400;
     var timeBetweenBlink = 250; // milliseconds between enemy blink
     var timeBetweenEnemyUpdate = 400;
-    this.maxBullets = utils.isIE ? 10 : 20;
+    this.maxBullets = utils.isIE ? 10 : 50;
     
     /*var highscoreURL = "http://asteroids.glonk.se/highscores.html";
      var closeURL = "http://asteroids.glonk.se/close.png";*/
@@ -34,8 +34,10 @@ function Asteroids(){
     this.firstPlayer = new Player(1)
     this.players.push(this.firstPlayer);
     this.bullets = [];
+	this.bombs = [];
     this.creeps = [];
-    
+    this.level = 0;
+	this.creep_levels = [5, 7, 10, 15, 20]
     // Particles are created when something is shot
     this.particles = [];
     /*
@@ -106,15 +108,22 @@ function Asteroids(){
     
     this.points.innerHTML = "0";
     
-	//life
-	
+    //life
+    
     this.life = document.getElementById('life');
-	this.life_value = document.getElementById('life-value');
+    this.life_value = document.getElementById('life-value');
     this.life.style.font = "28pt Arial, sans-serif";
     this.life.style.fontWeight = "bold";
     this.life.className = "ASTEROIDSYEAH";
-    this.navigation.appendChild(this.life); 
-	
+    this.navigation.appendChild(this.life);
+    
+    this.kills = document.getElementById('kills');
+    this.kills_value = document.getElementById('kills-value');
+    this.kills.style.font = "28pt Arial, sans-serif";
+    this.kills.style.fontWeight = "bold";
+    this.kills.className = "ASTEROIDSYEAH";
+    this.navigation.appendChild(this.kills);
+    
     this.debug = document.createElement('span');
     this.debug.className = "ASTEROIDSYEAH";
     this.debug.innerHTML = "";
@@ -137,25 +146,38 @@ function Asteroids(){
         
         //just a stand in for a 'waves' approach, when there are 0 creeps,.. create 10
         if (!this.creeps.length) {
-            for (var i = 0; i < 5; i++) {
+			for (var i = 0; i < this.creep_levels[this.level];i++) {
                 var randX = Math.floor(Math.random() * w);
                 var randY = Math.floor(Math.random() * h);
                 var newCreepPos = new Vector(randX, randY);
                 this.creeps.push(new Creep(newCreepPos, this.firstPlayer));
             }
+			
+			this.level += 1;
+			if (this.level > 1){
+				this.firstPlayer.life = Math.floor(this.firstPlayer.life*1.5);
+			}
+			
+            
         }
         
         for (var p = 0, player = this.players[p]; p < this.players.length; p++) {
-            player.update.call(player);
+            player.update();
         }
         
-        for (var c = 0;c < this.creeps.length; c++) {
+        for (var c = 0; c < this.creeps.length; c++) {
             this.creeps[c].update();
         }
         
-        // update positions of bullets
-        bulletHandler(this);
+        for (var b = 0; b < this.bullets.length; b++) {
+            this.bullets[b].update();
+        }
         
+		for (var b = 0; b < this.bombs.length; b++) {
+            this.bombs[b].update();
+        }
+        
+		
         // update particles position
         for (var i = 0; i < this.particles.length; i++) {
             this.particles[i].pos.add(this.particles[i].dir.mulNew(particleSpeed * this.tDelta * Math.random()));
@@ -201,9 +223,8 @@ function init(){
         document.getElementsByTagName('head')[0].appendChild(script);
     }
     else 
-	    app = new Asteroids();
-	    setTimeout(function(){
-	        app.update.call(app)},
-			1000
-    );
+        app = new Asteroids();
+    setTimeout(function(){
+        app.update.call(app)
+    }, 1000);
 };

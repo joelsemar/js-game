@@ -40,7 +40,7 @@ function addContext(that, h, w){
     };
     
     that.ctx.tracePoly = function(verts){
-		
+    
         this.beginPath();
         this.moveTo(verts[0][0], verts[0][1]);
         for (var i = 1; i < verts.length; i++) 
@@ -50,7 +50,7 @@ function addContext(that, h, w){
     
     that.ctx.drawPlayer = function(player){
         this.save();
-		this.translate(player.pos.x, player.pos.y);
+        this.translate(player.pos.x, player.pos.y);
         this.rotate(-player.dir.angle());
         this.tracePoly(player.polyVerts);
         this.stroke();
@@ -101,8 +101,15 @@ function addContext(that, h, w){
         this.restore();
     }
     
-    
-    
+    that.ctx.drawBomb = function(bomb){
+        this.save();
+        this.strokeStyle = "rgba(255, 0, 0, 1)";
+        this.beginPath();
+        this.arc(bomb.pos.x, bomb.pos.y, bomb.radius, 0, Math.PI * 2, true);
+        this.closePath();
+        this.stroke();
+        this.restore();
+    }
     
 }
 
@@ -122,6 +129,11 @@ function redraw(app, proceed){
     // draw bullets
     for (var i = 0; i < app.bullets.length; i++) {
         context.drawBullet(app.bullets[i].pos);
+    }
+	
+	// draw bombs
+    for (var i = 0; i < app.bombs.length; i++) {
+        context.drawBomb(app.bombs[i]);
     }
     //draw creeps
     for (var i = 0; i < app.creeps.length; i++) {

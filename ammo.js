@@ -1,75 +1,131 @@
 var bulletSpeed = 700;
 
-function Bullet(shooter, speed, type){
+function Bullet(shooter, speed){
     var speed = speed || 500;
-	this.shooter_type = type;
+    this.shooter_type = shooter.type;
     this.pos = shooter.pos.cp();
     this.dir = shooter.dir.cp();
     this.startVel = shooter.dir.cp();
+    this.shooter = shooter;
     this.vel = shooter.dir.cp().normalize().mul(speed);
     this.cameAlive = new Date().getTime();
     this.damage = Math.floor(Math.random() * 50 + shooter.base_damage);
-}
-
-
-
-
-function bulletHandler(){
-    var nowTime = new Date().getTime()
-    for (var i = 0; i < app.bullets.length; i++) {
-        var bullet = app.bullets[i];
-        
+    this.update = function(){
+        var now = app.now;
         // bullets should only live for 2 seconds
-        if (nowTime - bullet.cameAlive > 2000) {
-            utils.arrayRemove(app.bullets, i);
+        if (now - this.cameAlive > 2000) {
+            utils.arrayRemove(app.bullets, utils.indexOf(app.bullets, this));
             app.forceChange = true;
-            i--;
-            continue;
+            return;
         }
-        bullet.pos.add(bullet.vel.mulNew(app.tDelta));
-        utils.boundsCheck(bullet);
+        this.pos.add(this.vel.mulNew(app.tDelta));
+        utils.boundsCheck(this);
         
         // check collisions
-        var newLength = bullet.dir.setLengthNew(bulletSpeed * app.tDelta)
-        var prediction = bullet.startVel.mulNew(app.tDelta)
+        var newLength = this.dir.setLengthNew(bulletSpeed * app.tDelta)
+        var prediction = this.startVel.mulNew(app.tDelta)
         var bulletVel = newLength.add(prediction);
-        var ray = new Line(bullet.pos.cp(), bullet.pos.addNew(bulletVel));
+        var ray = new Line(this.pos.cp(), this.pos.addNew(bulletVel));
         var hit = false;
         
         for (var c = 0, creep; creep = app.creeps[c]; c++) {
-            if (creep.type == bullet.shooter_type) {
-                continue;
+            if (creep.type == this.shooter_type) {
+                break;
             }
             if (ray.intersectsWithRect(creep.getRect())) {
                 hit = true;
-				utils.damagePopup(creep.pos, bullet.damage)
-                creep.life -= bullet.damage;
-                creep.pos = creep.pos.add(bullet.vel.mulNew(app.tDelta))
+                utils.damagePopup(creep.pos, this.damage, this.shooter_type)
+                creep.life -= this.damage;
+                creep.last_hit_by = this.shooter;
+                creep.pos = creep.pos.add(this.vel.mulNew(app.tDelta))
                 break;
             }
         }
         for (var p = 0, player; player = app.players[p]; p++) {
-            if (player.type == bullet.shooter_type) {
-                continue;
+            if (player.type == this.shooter_type) {
+                break;
             }
             if (ray.intersectsWithRect(player.getRect())) {
                 hit = true;
-				utils.damagePopup(player.pos, bullet.damage)
-                player.life -= bullet.damage;
-                player.pos = player.pos.add(bullet.vel.mulNew(app.tDelta))
+                utils.damagePopup(player.pos, this.damage, this.shooter_type)
+                player.life -= this.damage;
+                player.pos = player.pos.add(this.vel.mulNew(app.tDelta))
                 break;
             }
         }
         
-        
         // If it hit something the bullet should go down with it
         if (hit) {
-            utils.arrayRemove(app.bullets, i);
-            i--;
-            continue;
+            utils.arrayRemove(app.bullets, utils.indexOf(app.bullets, this))
+            return;
         }
         
     }
+}
+
+
+
+function Bomb(bomber){
+    this.bomber = bomber;
+    this.launched = new Date().getTime();
+    this.last_damage = false;
+    this.pos = bomber.pos.cp();
+    this.vel = bomber.dir.cp().normalize().mul(this.speed)
+    this.xvel = bomber.dir.cp().normalize().mul(this.xspeed)
+    this.update = function(){
+        var now = app.now;
+        if (now - this.launched > this.time_to_die) {
+            utils.arrayRemove(app.bombs, utils.indexOf(app.bombs, this));
+            app.forceChange = true;
+            return;
+        }
+        this.pos.add(this.vel.mulNew(app.tDelta));
+        utils.boundsCheck(this);
+        if (now - this.launched > this.time_to_blow) {
+            this.exploding = true;
+        }
+        
+        if (this.exploding) {
+            this.radius += this.xvel.mulNew(app.tDelta).len()
+        }
+        
+        for (var c = 0, creep; creep = app.creeps[c]; c++) {
+            if (creep.type == this.shooter_type) {
+                break;
+            }
+            var distance = new Line(this.pos, creep.pos);
+            if (distance.len() < this.radius && now - this.last_damage > this.time_between_damage) {
+                var d = Math.floor(Math.random() * 50 + this.base_damage);
+                utils.damagePopup(creep.pos, d, this.bomber.type)
+                this.hit = true;
+                creep.life -= d;
+                creep.last_hit_by = this.bomber;
+                creep.vel = new Vector(creep.pos.x - this.pos.x, creep.pos.y - this.pos.y).normalize().mul(this.xspeed * 2)
+                break;
+            }
+            
+        }
+        if (this.hit) {
+            this.last_damage = now
+            this.hit = false;
+        }
+        
+        
+        
+    }
     
-    
+}
+
+
+Bomb.prototype = {
+    radius: 4,
+    base_damage: 5,
+    speed: 100,
+    xspeed: 400,
+    exploding: false,
+    time_to_blow: 1000, // time before bomb explodes, (ms)
+    time_to_die: 4000,
+    time_between_damage: 400,
+    hit: false
+
 }

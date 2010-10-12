@@ -178,25 +178,33 @@ var utils = (function(){
                     obj.pos.y = 0 + cushion;
                 }
         },
-        damagePopup: function(pos, val){
+        damagePopup: function(pos, val, type){
+            if (type == 'player') {
+                var color = '#33EE33';
+            }
+            else {
+                var color = 'red'
+            }
             var s = document.createElement('span');
-			s.id = 'p_' + app.now;
+            s.id = 'p_' + app.now;
             s.innerHTML = val;
+			s.style.color = color;
             with (s.style) {
                 font = "Arial,sans-serif";
+                fontWeight = 'bold';
                 position = "fixed";
                 zIndex = "10001";
                 top = pos.y + "px";
                 left = pos.x + "px";
                 textAlign = "right";
-				width = '20px';
-				height = '20px';
+                width = '20px';
+                height = '20px';
             }
             document.body.appendChild(s)
-			function callBack(){
-				s.parentNode.removeChild(s);
-			}
-			setTimeout(callBack, 2000)
+            function callBack(){
+                s.parentNode.removeChild(s);
+            }
+            setTimeout(callBack, 1000)
         }
     }
 })();

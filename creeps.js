@@ -9,6 +9,7 @@ function Creep(pos, player){
 	this.maxSpeed = 100;
 	this.img = app.creepImage;
 	this.life = 100;
+	this.last_hit_by = false;
 	this.getRect = function(){
 		return {
 			x: that.pos.x || 10,
@@ -23,6 +24,7 @@ function Creep(pos, player){
 	this.update = function(){
 		if (this.life < 1){
 			utils.arrayRemove(app.creeps, utils.indexOf(app.creeps, this));
+			this.last_hit_by.kills += 1;
 			utils.addParticles(this.pos);
 			return;
 		}

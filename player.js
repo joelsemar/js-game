@@ -6,20 +6,25 @@ function Player(id, width, height){
     this.polyVerts = [[-1 * this.width / 2, -15], [this.width / 2, -15], [0, 15]];
     this.base_damage = 35;
     this.life = 500;
+    this.kills = 0;
     
-    var timeBetweenFire = 350; // how many milliseconds between shots
-    var w = document.documentElement.clientWidth, h = document.documentElement.clientHeight;
+	var timeBetweenFire = 250; // how many milliseconds between shots
+    var timeBetweenBombs = 5000;
+	this.last_fired = false;
+    this.last_bombed = false;
+	
+	var w = document.documentElement.clientWidth, h = document.documentElement.clientHeight;
     this.pos = new Vector(w/ 2, h / 2);
     this.lastPos = false;
     this.vel = new Vector(0, 0);
     this.dir = new Vector(0, 1);
     this.keysPressed = {};
-    this.maxSpeed = 700;
+    this.maxSpeed = 500;
     this.flame = {
         r: [],
         y: []
     };
-    this.last_fired = false;
+    
     // units/second
     var acc = 300;
     this.updated = {
@@ -72,14 +77,14 @@ function Player(id, width, height){
     }
     
     this.update = function(){
-        if (this.id == 1) {
+        if (this == app.firstPlayer) {
             app.life_value.innerHTML = this.life;
+			app.kills_value.innerHTML = this.kills;
             if (this.life < 1) {
                 alert('DEAD');
                 location.reload(true);
             }
         }
-        
         this.drawFlame = false;
         var now = app.now
         //apply our velocity
@@ -93,7 +98,7 @@ function Player(id, width, height){
         
         // fire
         if (this.keysPressed[utils.code(' ')] && now - this.last_fired > timeBetweenFire) {
-            app.bullets.push(new Bullet(this, false, this.type));
+            app.bullets.push(new Bullet(this, false));
             this.last_fired = now;
             if (app.bullets.length > app.maxBullets) {
                 utils.arrayRemove(app.bullets, 0);
@@ -126,6 +131,14 @@ function Player(id, width, height){
             events.destroy(this);
             return;
         }
+		
+		if (this.keysPressed[utils.code('B')] && now - this.last_bombed > timeBetweenBombs) {
+            app.bombs.push(new Bomb(this));
+			this.last_bombed = now;
+            return;
+        }
+        
+		
         
         // cap speed
         if (this.vel.len() > this.maxSpeed) {
