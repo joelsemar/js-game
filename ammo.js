@@ -91,7 +91,8 @@ function Bomb(bomber){
         
         for (var c = 0, creep; creep = app.creeps[c]; c++) {
             var distance = new Line(this.pos, creep.pos);
-            if (distance.len() < this.radius && (now - this.last_damage > this.time_between_damage)) {
+			var edge_distance = Math.abs(this.radius - distance.len())
+            if ((distance.len() < this.radius && (now - this.last_damage > this.time_between_damage))| edge_distance < 2) {
                 var d = Math.abs(Math.floor(Math.random() * this.damage_mul + this.base_damage));
                 utils.damagePopup(creep.pos, d, this.bomber.type)
                 this.hit = true;
@@ -113,13 +114,13 @@ function Bomb(bomber){
 Bomb.prototype = {
     radius: 6,
     base_damage: 5,
-    damage_mul: 30,
+    damage_mul: 25,
     speed: 100,
-    xspeed: 400,
+    xspeed: 200,
     exploding: false,
     time_to_blow: 1000, // time before bomb explodes, (ms)
-    time_to_die: 1500,
-    time_between_damage: 125,
+    time_to_die: 1700,
+    time_between_damage: 375,
     hit: false
 
 }

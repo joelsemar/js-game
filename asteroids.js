@@ -10,7 +10,7 @@ function Asteroids(){
     
     this.creepImage = new Image();
     this.creepImage.src = 'static/images/alien.png'
-    var FPS = utils.isIE ? 30 : 50;
+    var FPS = utils.isIE ? 30 : 72;
     var particleSpeed = 400;
     var timeBetweenBlink = 250; // milliseconds between enemy blink
     var timeBetweenEnemyUpdate = 400;
@@ -36,7 +36,7 @@ function Asteroids(){
     this.bullets = [];
     this.bombs = [];
     this.creeps = [];
-    this.level = 0;
+    this.level = 3;
     this.creep_levels = [5, 7, 10, 15, 20, 25, 32, 41, 55]
     // Particles are created when something is shot
     this.particles = [];
