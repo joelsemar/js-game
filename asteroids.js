@@ -36,8 +36,8 @@ function Asteroids(){
     this.bullets = [];
     this.bombs = [];
     this.creeps = [];
-    this.level = 3;
-    this.creep_levels = [5, 7, 10, 15, 20, 25, 32, 41, 55]
+    this.level = 0;
+    this.creep_levels = [7, 10, 15, 20, 25, 32, 41, 55]
     // Particles are created when something is shot
     this.particles = [];
     /*
@@ -96,17 +96,8 @@ function Asteroids(){
         right = "10px";
         textAlign = "right";
     }
-    this.navigation.innerHTML = "(click anywhere to exit/press esc to quit) ";
+    this.navigation.innerHTML = "(space to fire, 'b' for bombs, click anywhere to exit/press esc to quit) ";
     document.body.appendChild(this.navigation);
-    
-    // points
-    this.points = document.createElement('span');
-    this.points.style.font = "28pt Arial, sans-serif";
-    this.points.style.fontWeight = "bold";
-    this.points.className = "ASTEROIDSYEAH";
-    this.navigation.appendChild(this.points);
-    
-    this.points.innerHTML = "0";
     
     //life
     
