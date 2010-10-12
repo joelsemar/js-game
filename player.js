@@ -19,7 +19,7 @@ function Player(id, width, height){
     this.vel = new Vector(0, 0);
     this.dir = new Vector(0, 1);
     this.keysPressed = {};
-    this.maxSpeed = 500;
+    this.maxSpeed = 300;
     this.flame = {
         r: [],
         y: []
@@ -81,6 +81,8 @@ function Player(id, width, height){
             app.life_value.innerHTML = this.life;
 			app.kills_value.innerHTML = this.kills;
             if (this.life < 1) {
+				this.life = 0;
+				app.life_value.innerHTML = this.life;
                 alert('DEAD');
                 location.reload(true);
             }

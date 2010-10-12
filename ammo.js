@@ -71,7 +71,7 @@ function Bomb(bomber){
     this.last_damage = false;
     this.pos = bomber.pos.cp();
     this.vel = bomber.dir.cp().normalize().mul(this.speed)
-    this.xvel = bomber.dir.cp().normalize().mul(this.xspeed)
+    this.xvel = new Vector(1, 1).mul(this.xspeed)
     this.update = function(){
         var now = app.now;
         if (now - this.launched > this.time_to_die) {
@@ -90,12 +90,9 @@ function Bomb(bomber){
         }
         
         for (var c = 0, creep; creep = app.creeps[c]; c++) {
-            if (creep.type == this.shooter_type) {
-                break;
-            }
             var distance = new Line(this.pos, creep.pos);
-            if (distance.len() < this.radius && now - this.last_damage > this.time_between_damage) {
-                var d = Math.floor(Math.random() * 50 + this.base_damage);
+            if (distance.len() < this.radius && (now - this.last_damage > this.time_between_damage)) {
+                var d = Math.abs(Math.floor(Math.random() * this.damage_mul + this.base_damage));
                 utils.damagePopup(creep.pos, d, this.bomber.type)
                 this.hit = true;
                 creep.life -= d;
@@ -109,23 +106,20 @@ function Bomb(bomber){
             this.last_damage = now
             this.hit = false;
         }
-        
-        
-        
     }
-    
 }
 
 
 Bomb.prototype = {
-    radius: 4,
+    radius: 6,
     base_damage: 5,
+    damage_mul: 30,
     speed: 100,
     xspeed: 400,
     exploding: false,
     time_to_blow: 1000, // time before bomb explodes, (ms)
-    time_to_die: 4000,
-    time_between_damage: 400,
+    time_to_die: 1500,
+    time_between_damage: 125,
     hit: false
 
 }

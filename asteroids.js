@@ -34,10 +34,10 @@ function Asteroids(){
     this.firstPlayer = new Player(1)
     this.players.push(this.firstPlayer);
     this.bullets = [];
-	this.bombs = [];
+    this.bombs = [];
     this.creeps = [];
     this.level = 0;
-	this.creep_levels = [5, 7, 10, 15, 20]
+    this.creep_levels = [5, 7, 10, 15, 20, 25, 32, 41, 55]
     // Particles are created when something is shot
     this.particles = [];
     /*
@@ -146,18 +146,28 @@ function Asteroids(){
         
         //just a stand in for a 'waves' approach, when there are 0 creeps,.. create 10
         if (!this.creeps.length) {
-			for (var i = 0; i < this.creep_levels[this.level];i++) {
+    		var num_creeps  = this.creep_levels[this.level]
+			if (!num_creeps){
+				alert("Aren't you special?")
+				return;
+			}
+			for (var i = 0; i < num_creeps; i++) {
                 var randX = Math.floor(Math.random() * w);
                 var randY = Math.floor(Math.random() * h);
                 var newCreepPos = new Vector(randX, randY);
                 this.creeps.push(new Creep(newCreepPos, this.firstPlayer));
             }
-			
-			this.level += 1;
-			if (this.level > 1){
-				this.firstPlayer.life = Math.floor(this.firstPlayer.life*1.5);
-			}
-			
+            
+            this.level += 1;
+            if (this.level > 1) {
+                for (var p = 0, player; player = this.players[p]; p++) {
+                    player.life = Math.floor(this.firstPlayer.life * 1.5);
+                    player.last_bombed = false;
+                }
+                
+                
+            }
+            
             
         }
         
@@ -165,19 +175,18 @@ function Asteroids(){
             player.update();
         }
         
-        for (var c = 0; c < this.creeps.length; c++) {
-            this.creeps[c].update();
-        }
-        
         for (var b = 0; b < this.bullets.length; b++) {
             this.bullets[b].update();
         }
         
-		for (var b = 0; b < this.bombs.length; b++) {
+        for (var b = 0; b < this.bombs.length; b++) {
             this.bombs[b].update();
         }
         
-		
+		for (var c = 0; c < this.creeps.length; c++) {
+            this.creeps[c].update();
+        }        
+        
         // update particles position
         for (var i = 0; i < this.particles.length; i++) {
             this.particles[i].pos.add(this.particles[i].dir.mulNew(particleSpeed * this.tDelta * Math.random()));
