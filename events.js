@@ -4,14 +4,11 @@ var events = function(){
         
 		app.firstPlayer.keysPressed[event.keyCode] = true;
         
-        switch (event.keyCode) {
-            case utils.code(' '):
-                app.firedAt = 1;
-                break;
-        }
-        
         // check here so we can stop propogation appropriately
-        if (utils.indexOf([utils.code('up'), utils.code('down'), utils.code('right'), utils.code('left'), utils.code(' '), utils.code('B')], event.keyCode) != -1) {
+        if (utils.indexOf([utils.code('up'), utils.code('down'), utils.code('right'),
+		                   utils.code('left'), utils.code(' '), utils.code('B'), utils.code('F'),
+						   utils.code('W'), utils.code('D'), utils.code('S'), utils.code('A')],
+						   event.keyCode) != -1) {
             if (event.preventDefault) 
                 event.preventDefault();
             return false;
@@ -48,6 +45,7 @@ var events = function(){
             utils.addEvent(window, 'keyup', eventKeyup);
             utils.addEvent(window, 'keydown', eventKeydown, scope);
             utils.addEvent(window, 'keypress', eventKeypress);
+			
             
         },
         

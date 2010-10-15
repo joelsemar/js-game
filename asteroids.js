@@ -137,12 +137,12 @@ function Asteroids(){
         
         //just a stand in for a 'waves' approach, when there are 0 creeps,.. create 10
         if (!this.creeps.length) {
-    		var num_creeps  = this.creep_levels[this.level]
-			if (!num_creeps){
-				alert("Aren't you special?")
-				return;
-			}
-			for (var i = 0; i < num_creeps; i++) {
+            var num_creeps = this.creep_levels[this.level]
+            if (!num_creeps) {
+                alert("Aren't you special?")
+                return;
+            }
+            for (var i = 0; i < num_creeps; i++) {
                 var randX = Math.floor(Math.random() * w);
                 var randY = Math.floor(Math.random() * h);
                 var newCreepPos = new Vector(randX, randY);
@@ -155,11 +155,7 @@ function Asteroids(){
                     player.life = Math.floor(this.firstPlayer.life * 1.5);
                     player.last_bombed = false;
                 }
-                
-                
             }
-            
-            
         }
         
         for (var p = 0, player = this.players[p]; p < this.players.length; p++) {
@@ -174,9 +170,9 @@ function Asteroids(){
             this.bombs[b].update();
         }
         
-		for (var c = 0; c < this.creeps.length; c++) {
+        for (var c = 0; c < this.creeps.length; c++) {
             this.creeps[c].update();
-        }        
+        }
         
         // update particles position
         for (var i = 0; i < this.particles.length; i++) {
@@ -202,28 +198,7 @@ function Asteroids(){
 }
 
 function init(){
-    if (window.ActiveXObject) {
-        try {
-            var xamlScript = document.createElement('script');
-            xamlScript.setAttribute('type', 'text/xaml');
-            xamlScript.textContent = '<?xml version="1.0"?><Canvas xmlns="http://schemas.microsoft.com/client/2007"></Canvas>';
-            document.getElementsByTagName('head')[0].appendChild(xamlScript);
-        } 
-        catch (e) {
-        }
-        
-        var script = document.createElement("script");
-        script.setAttribute('type', 'text/javascript');
-        script.onreadystatechange = function(){
-            if (script.readyState == 'loaded' || script.readyState == 'completed') {
-                app = new Asteroids();
-            }
-        };
-        script.src = "excanvas.js";
-        document.getElementsByTagName('head')[0].appendChild(script);
-    }
-    else 
-        app = new Asteroids();
+    app = new Asteroids();
     setTimeout(function(){
         app.update.call(app)
     }, 1000);

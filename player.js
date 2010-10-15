@@ -99,7 +99,7 @@ function Player(id, width, height){
         }
         
         // fire
-        if (this.keysPressed[utils.code(' ')] && now - this.last_fired > timeBetweenFire) {
+        if ((this.keysPressed[utils.code(' ')] |  this.keysPressed[utils.code('F')]) && now - this.last_fired > timeBetweenFire) {
             app.bullets.push(new Bullet(this, false));
             this.last_fired = now;
             if (app.bullets.length > app.maxBullets) {
@@ -108,23 +108,21 @@ function Player(id, width, height){
             }
         }
         
-        if (this.keysPressed[utils.code('up')]) {
+        if (this.keysPressed[utils.code('up')] | this.keysPressed[utils.code('W')]) {
             this.vel.add(this.dir.mulNew(acc * app.tDelta));
             this.drawFlame = true;
         }
-        else {
-            // decrease speed of player
-            this.vel.mul(0.96);
+		if (this.keysPressed[utils.code('down')] |  this.keysPressed[utils.code('S')]) {
+            this.vel.mul(0.90);
         }
-        
         // rotate counter-clockwise
-        if (this.keysPressed[utils.code('left')]) {
+        if (this.keysPressed[utils.code('left')] | this.keysPressed[utils.code('A')]) {
             this.forceChange = true;
             this.dir.rotate(utils.radians(this.rotSpeed * app.tDelta * -1));
         }
         
         // rotate clockwise
-        if (this.keysPressed[utils.code('right')]) {
+        if (this.keysPressed[utils.code('right')] | this.keysPressed[utils.code('D')]){
             this.forceChange = true;
             this.dir.rotate(utils.radians(this.rotSpeed * app.tDelta));
         }

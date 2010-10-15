@@ -47,9 +47,7 @@ var utils = (function(){
                 'right': 39,
                 'esc': 27
             };
-            if (table[name]) 
-                return table[name];
-            return name.charCodeAt(0);
+            return table[name] || name.charCodeAt(0);
         },
         
         size: function(element){
