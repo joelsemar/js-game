@@ -28,31 +28,32 @@ function Bullet(shooter, speed){
         var ray = new Line(this.pos.cp(), this.pos.addNew(bulletVel));
         var hit = false;
         
-        for (var c = 0, creep; creep = app.creeps[c]; c++) {
-            if (creep.type == this.shooter_type) {
-                break;
+        if (this.shooter_type == 'player') {
+            for (var c = 0, creep; creep = app.creeps[c]; c++) {
+                if (ray.intersectsWithRect(creep.getRect())) {
+                    hit = true;
+                    utils.damagePopup(creep.pos, this.damage, this.shooter_type)
+                    creep.life -= this.damage;
+                    creep.last_hit_by = this.shooter;
+                    creep.pos = creep.pos.add(this.vel.mulNew(app.tDelta))
+                    break;
+                }
             }
-            if (ray.intersectsWithRect(creep.getRect())) {
-                hit = true;
-                utils.damagePopup(creep.pos, this.damage, this.shooter_type)
-                creep.life -= this.damage;
-                creep.last_hit_by = this.shooter;
-                creep.pos = creep.pos.add(this.vel.mulNew(app.tDelta))
-                break;
+            
+        }
+        
+        if (this.shooter_type == 'creep') {
+            for (var p = 0, player; player = app.players[p]; p++) {
+                if (ray.intersectsWithRect(player.getRect())) {
+                    hit = true;
+                    utils.damagePopup(player.pos, this.damage, this.shooter_type)
+                    player.life -= this.damage;
+                    player.pos = player.pos.add(this.vel.mulNew(app.tDelta))
+                    break;
+                }
             }
         }
-        for (var p = 0, player; player = app.players[p]; p++) {
-            if (player.type == this.shooter_type) {
-                break;
-            }
-            if (ray.intersectsWithRect(player.getRect())) {
-                hit = true;
-                utils.damagePopup(player.pos, this.damage, this.shooter_type)
-                player.life -= this.damage;
-                player.pos = player.pos.add(this.vel.mulNew(app.tDelta))
-                break;
-            }
-        }
+        
         
         // If it hit something the bullet should go down with it
         if (hit) {
@@ -91,14 +92,14 @@ function Bomb(bomber){
         
         for (var c = 0, creep; creep = app.creeps[c]; c++) {
             var distance = new Line(this.pos, creep.pos);
-            if (distance.len() < this.radius && (now - creep.last_bomb > this.time_between_damage| !creep.last_bomb)) {
+            if (distance.len() < this.radius && (now - creep.last_bomb > this.time_between_damage | !creep.last_bomb)) {
                 var d = Math.abs(Math.floor(Math.random() * this.damage_mul + this.base_damage));
                 utils.damagePopup(creep.pos, d, this.bomber.type)
                 creep.life -= d;
                 creep.last_hit_by = this.bomber;
                 creep.vel = new Vector(creep.pos.x - this.pos.x, creep.pos.y - this.pos.y).normalize().mul(this.xspeed * 2)
                 creep.last_bomb = now
-				break;
+                break;
             }
             
         }

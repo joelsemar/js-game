@@ -41,23 +41,23 @@ var events = function(){
     
     return {
     
-        addEvents: function(scope){
+        addEvents: function(){
             utils.addEvent(window, 'keyup', eventKeyup);
-            utils.addEvent(window, 'keydown', eventKeydown, scope);
+            utils.addEvent(window, 'keydown', eventKeydown, app);
             utils.addEvent(window, 'keypress', eventKeypress);
 			
             
         },
         
-        destroy: function destroy(scope){
+        destroy: function destroy(){
             utils.removeEvent(window, 'keydown', eventKeydown);
             utils.removeEvent(window, 'keypress', eventKeypress);
             utils.removeEvent(window, 'keyup', eventKeyup);
             isRunning = false;
             utils.removeStylesheet("ASTEROIDSYEAH");
             utils.removeClass(document.body, 'ASTEROIDSYEAH');
-            scope.canvas.parentNode.removeChild(scope.canvas);
-            scope.navigation.parentNode.removeChild(scope.navigation);
+            app.canvas.parentNode.removeChild(app.canvas);
+            app.navigation.parentNode.removeChild(app.navigation);
         }
     }
 }();

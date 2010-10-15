@@ -6,7 +6,8 @@ function Creep(pos, player){
 	this.target = player
 	this.dir = player.pos.cp().mul(-1)
 	this.vel = new Vector(player.pos.x - pos.x, player.pos.y - pos.y).normalize().mul(100);
-	this.maxSpeed = 100;
+	this.maxSpeed = 150;
+	this.bulletSpeed = 250;
 	this.img = app.creepImage;
 	this.life = 100;
 	this.last_hit_by = false;
@@ -36,7 +37,7 @@ function Creep(pos, player){
 		if (app.now - this.last_fired > timeBetweenFire) {
 		  this.dir = new Vector(this.target.pos.x - this.pos.x , this.target.pos.y - this.pos.y).normalize();
 		  this.last_fired = app.now;
-		  app.bullets.push(new Bullet(this, 200, this.type));
+		  app.bullets.push(new Bullet(this, this.bulletSpeed));
 		}
         utils.boundsCheck(this);
             if (this.vel.len() > this.maxSpeed) {

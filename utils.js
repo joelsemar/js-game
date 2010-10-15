@@ -2,7 +2,7 @@
 var utils = (function(){
     var isIE = !!window.ActiveXObject; // IE gets less performance-intensive	
     var hiddenTypes = ['BR', 'HR'];
-    var maxParticles = isIE ? 10 : 40;
+    var maxParticles = 5;
     function bounceHeight(vec){
     
         var a = -(Math.PI / 2 - vec.angle())
@@ -100,8 +100,7 @@ var utils = (function(){
         
         addParticles: function(startPos){
             var time = new Date().getTime();
-            var amount = maxParticles;
-            for (var i = 0; i < amount; i++) {
+            for (var i = 0; i < maxParticles; i++) {
                 app.particles.push({
                     // random direction
                     dir: (new Vector(Math.random() * 20 - 10, Math.random() * 20 - 10)).normalize(),

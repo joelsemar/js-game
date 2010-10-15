@@ -83,8 +83,12 @@ function Player(id, width, height){
             if (this.life < 1) {
 				this.life = 0;
 				app.life_value.innerHTML = this.life;
-                alert('DEAD');
-                location.reload(true);
+                if (confirm("Dead, play again?")){
+				    location.reload(true);	
+				}
+				else{
+					app.destroy();
+				}
             }
         }
         this.drawFlame = false;
@@ -137,9 +141,7 @@ function Player(id, width, height){
 			this.last_bombed = now;
             return;
         }
-        
 		
-        
         // cap speed
         if (this.vel.len() > this.maxSpeed) {
             this.vel.setLength(this.maxSpeed);

@@ -10,7 +10,7 @@ function Asteroids(){
     
     this.creepImage = new Image();
     this.creepImage.src = 'static/images/alien.png'
-    var FPS = utils.isIE ? 30 : 72;
+    var FPS = 32;
     var particleSpeed = 400;
     var timeBetweenBlink = 250; // milliseconds between enemy blink
     var timeBetweenEnemyUpdate = 400;
