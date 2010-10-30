@@ -1,23 +1,68 @@
-<script type='application/javascript'>
-    
-    
-    function addEvent(obj, type, fn){
-        if (obj.addEventListener) 
-            obj.addEventListener(type, fn, false);
-        else 
-            if (obj.attachEvent) {
-                obj["e" + type + fn] = fn;
-                obj[type + fn] = function(){
-                    obj["e" + type + fn](window.event);
-                }
-                obj.attachEvent("on" + type, obj[type + fn]);
+<!DOCTYPE html/>
+<html>
+    <head>
+        <script type='application/javascript'>
+            
+            
+            function Circle(x, y, rad){
+                this.x = x;
+                this.y = y;
+                this.rad = rad;
+                this.shrinking = true;
             }
-    }
-    
-    function keyPress(event){
-        event = event || window.event;
-        console.log(event.keyCode)
-    };
-	
-	addEvent(window, 'keypress', keyPress)
-</script>
+            
+            function init(){
+                var c = new Circle(450,400, 35);
+                var ctx = document.getElementById('canvas').getContext("2d");
+                
+                
+                ctx.drawCircle = function(circle){
+                    this.beginPath();
+                    this.arc(circle.x, circle.y, circle.rad, 0, Math.PI * 2, true);
+                    this.closePath();
+                    this.stroke();
+                    
+                }
+                ctx.clear = function(){
+                    this.clearRect(0, 0, 900, 800);
+                };
+                ctx.drawCircle(c);
+                function animate(){
+                    if (c.rad > 35) {
+                        c.shrinking = true;
+                    }
+                    else 
+                        if (c.rad < 10) {
+                            c.shrinking = false;
+                        }
+                    
+                    if (c.shrinking) {
+                        c.rad -= 2;
+						//c.x += 15;
+						//c.y += 5;
+                    }
+                    else {
+                        c.rad += 2;
+				//		c.y -=5;
+					//	c.x -= 15;
+                    }
+                    ctx.clear();
+                    ctx.drawCircle(c);
+                    
+                    
+                }
+                setInterval(animate, 75);
+            }
+        </script>
+        <style type="text/css">
+            #canvas {
+                border: 1px solid;
+                margin: 0 auto;
+            }
+        </style>
+    </head>
+    <body onload="init();">
+        <canvas id="canvas" width="900px" height="800px">
+        </canvas>
+    </body>
+</html>

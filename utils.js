@@ -185,7 +185,7 @@ var utils = (function(){
             var s = document.createElement('span');
             s.id = 'p_' + app.now;
             s.innerHTML = val;
-			s.style.color = color;
+            s.style.color = color;
             with (s.style) {
                 font = "Arial,sans-serif";
                 fontWeight = 'bold';
@@ -202,6 +202,16 @@ var utils = (function(){
                 s.parentNode.removeChild(s);
             }
             setTimeout(callBack, 1000)
+        },
+        //Create an object using constructor 'Foo' with its class's prototype pointing to type,
+		// create(Foo, type); 
+        create: function(ctor, type){
+            var dummy = function(){};
+            dummy.prototype = type;
+            var obj = new dummy;
+            ctor.call(obj);
+            return obj;
         }
+        
     }
 })();

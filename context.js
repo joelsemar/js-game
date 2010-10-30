@@ -1,7 +1,7 @@
 
 
 function addContext(that, h, w){
-    var bulletRadius = 2;
+
     var strokeStyle = 'black'
     var fillStyle = 'red'
     var creepWidth = 40;
@@ -59,16 +59,23 @@ function addContext(that, h, w){
     
     that.ctx.drawCreep = function(creep){
         this.save();
-        this.drawImage(creep.img, creep.pos.x, creep.pos.y)
+        this.drawImage(creep.img, creep.pos.x, creep.pos.y);
         this.rotate(-creep.dir.angle());
         this.restore();
     }
     
-    that.ctx.drawBullet = function(pos){
+    that.ctx.drawBullet = function(bullet){
+		this.save();
         this.beginPath();
-        this.arc(pos.x, pos.y, bulletRadius, 0, Math.PI * 2, true);
+        if (bullet.heatSeeker) {
+            this.fillStyle = 'red';
+            bullet.radius = 5;
+            
+        }
+        this.arc(bullet.pos.x, bullet.pos.y, bullet.radius, 0, Math.PI * 2, true);
         this.closePath();
         this.fill();
+		this.restore();
     };
     
     var randomParticleColor = function(){
@@ -76,10 +83,12 @@ function addContext(that, h, w){
     };
     
     that.ctx.drawParticle = function(particle){
+		this.save();
         var oldColor = strokeStyle;
         this.strokeStyle = randomParticleColor();
         this.drawLine(particle.pos.x, particle.pos.y, particle.pos.x - particle.dir.x * 10, particle.pos.y - particle.dir.y * 10);
         this.strokeStyle = oldColor;
+		this.restore();
     };
     
     that.ctx.drawFlames = function(player){
@@ -110,7 +119,9 @@ function addContext(that, h, w){
         this.stroke();
         this.restore();
     }
-    
+    that.ctx.drawItem = function(item){
+        item.draw(that.ctx);
+    }
 }
 
 function redraw(app, proceed){
@@ -119,19 +130,23 @@ function redraw(app, proceed){
         return;
     }
     context.clear();
-    
-    // draw player
+    // items
+    for (var i = 0; i < app.items.length; i++) {
+        context.drawItem(app.items[i]);  
+    }
+	// draw player
     context.drawPlayer(app.firstPlayer);
     // draw flames
     if (app.firstPlayer.drawFlame) 
         context.drawFlames(app.firstPlayer);
     
+	
     // draw bullets
     for (var i = 0; i < app.bullets.length; i++) {
-        context.drawBullet(app.bullets[i].pos);
+        context.drawBullet(app.bullets[i]);
     }
-	
-	// draw bombs
+    
+    // draw bombs
     for (var i = 0; i < app.bombs.length; i++) {
         context.drawBomb(app.bombs[i]);
     }
@@ -143,5 +158,7 @@ function redraw(app, proceed){
     // draw particles
     for (var i = 0; i < app.particles.length; i++) 
         context.drawParticle(app.particles[i]);
+    
+	
 }
 

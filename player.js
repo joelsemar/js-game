@@ -5,7 +5,7 @@ function Player(id, width, height){
     this.width = width || 20, this.height = height || 30;
     this.polyVerts = [[-1 * this.width / 2, -15], [this.width / 2, -15], [0, 15]];
     this.base_damage = 35;
-    this.life = 500;
+    this.life = 500333;
     this.kills = 0;
     
 	var timeBetweenFire = 250; // how many milliseconds between shots
@@ -19,14 +19,14 @@ function Player(id, width, height){
     this.vel = new Vector(0, 0);
     this.dir = new Vector(0, 1);
     this.keysPressed = {};
-    this.maxSpeed = 300;
+    this.maxSpeed = 400;
     this.flame = {
         r: [],
         y: []
     };
     
     // units/second
-    var acc = 300;
+    var acc = 400;
     this.updated = {
         flame: new Date().getTime(), // the time the flame was last updated
     };
@@ -40,7 +40,7 @@ function Player(id, width, height){
         var rWidth = this.width;
         var rIncrease = this.width * 0.1;
         for (var x = 0; x < rWidth; x += rIncrease) 
-            that.flame.r.push([x, -utils.random(2, 7)]);
+            this.flame.r.push([x, -utils.random(2, 7)]);
         this.flame.r.push([rWidth, 0]);
         
         // yellow flames
@@ -149,6 +149,15 @@ function Player(id, width, height){
         if (!this.pos.is(this.lastPos) || this.vel.len()) {
             app.forceChange = true
         }
-        
+        for (var i=0;i<app.items.length;i++){
+			var item = app.items[i];
+			var distance = new Line(item.pos, this.pos);
+			if(distance.len() < item.radius){
+				item.apply_benefits(this);
+                item.used = true;
+				
+			}
+		}
+		
     }
 }

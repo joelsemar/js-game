@@ -31,13 +31,13 @@ function Asteroids(){
         }
     };
     this.players = [];
-    this.firstPlayer = new Player(1)
-    this.players.push(this.firstPlayer);
+   
     this.bullets = [];
     this.bombs = [];
     this.creeps = [];
+	this.items = [];
     this.level = 0;
-    this.creep_levels = [7, 10, 15, 20, 25, 32, 41, 55]
+    
     // Particles are created when something is shot
     this.particles = [];
     /*
@@ -105,25 +105,21 @@ function Asteroids(){
     this.life_value = document.getElementById('life-value');
     this.life.style.font = "28pt Arial, sans-serif";
     this.life.style.fontWeight = "bold";
-    this.life.className = "ASTEROIDSYEAH";
     this.navigation.appendChild(this.life);
     
     this.kills = document.getElementById('kills');
     this.kills_value = document.getElementById('kills-value');
     this.kills.style.font = "28pt Arial, sans-serif";
     this.kills.style.fontWeight = "bold";
-    this.kills.className = "ASTEROIDSYEAH";
     this.navigation.appendChild(this.kills);
     
     this.debug = document.createElement('span');
-    this.debug.className = "ASTEROIDSYEAH";
     this.debug.innerHTML = "";
     this.navigation.appendChild(this.debug);
     
     events.addEvents(that);
     addContext(that, h, w)
     
-    utils.addClass(document.body, 'ASTEROIDSYEAH');
     
     var isRunning = true;
     var lastUpdate = new Date().getTime();
@@ -135,7 +131,6 @@ function Asteroids(){
         this.tDelta = (this.now - lastUpdate) / 1000;
         lastUpdate = this.now;
         
-        //just a stand in for a 'waves' approach, when there are 0 creeps,.. create 10
         if (!this.creeps.length) {
             var num_creeps = this.creep_levels[this.level]
             if (!num_creeps) {
@@ -173,6 +168,10 @@ function Asteroids(){
         for (var c = 0; c < this.creeps.length; c++) {
             this.creeps[c].update();
         }
+		
+		for (var i = 0; i < this.items.length; i++) {
+            this.items[i].update();
+        }
         
         // update particles position
         for (var i = 0; i < this.particles.length; i++) {
@@ -190,16 +189,25 @@ function Asteroids(){
             redraw(app, proceed)
         }
         this.redraw((that.forceChange || this.bullets.length || this.particles.length || this.creeps.length))
-        setTimeout(function(){
-            app.update.call(app)
-        }, 1000 / FPS);
+        
         
     }
 }
-
+function GameManager(){
+	
+	var FPS = 50;
+	app = new Asteroids();
+	app.firstPlayer = new Player(1)
+    app.players.push(app.firstPlayer);
+	app.creep_levels = [7, 10, 15, 20, 25, 32, 41, 55]
+	this.run = function(){
+		setInterval(function(){
+            app.update.call(app)
+        }, 1000 / FPS);
+	}
+}
 function init(){
-    app = new Asteroids();
-    setTimeout(function(){
-        app.update.call(app)
-    }, 1000);
+    var gameManager = new GameManager();
+	gameManager.run();
+    
 };

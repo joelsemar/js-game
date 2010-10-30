@@ -1,15 +1,27 @@
 var bulletSpeed = 700;
 
-function Bullet(shooter, speed){
+function Projectile(type){
+	this.type = type;
+	this.update = function(){
+		this.type.update();
+	}
+	
+}
+
+
+function Bullet(shooter, speed, options){
+	var options = options || {};
     var speed = speed || 500;
     this.shooter_type = shooter.type;
     this.pos = shooter.pos.cp();
     this.dir = shooter.dir.cp();
     this.startVel = shooter.dir.cp();
     this.shooter = shooter;
+	this.heatSeeker = options.heatSeeker;
     this.vel = shooter.dir.cp().normalize().mul(speed);
     this.cameAlive = new Date().getTime();
     this.damage = Math.floor(Math.random() * 50 + shooter.base_damage);
+	this.radius = 2;
     this.update = function(){
         var now = app.now;
         // bullets should only live for 2 seconds
@@ -18,6 +30,9 @@ function Bullet(shooter, speed){
             app.forceChange = true;
             return;
         }
+		if (options.heatSeeker){
+			this.vel = new Vector(options.target.pos.x - this.pos.x, options.target.pos.y - this.pos.y).normalize().mul(speed *.75);
+		}
         this.pos.add(this.vel.mulNew(app.tDelta));
         utils.boundsCheck(this);
         
@@ -64,15 +79,13 @@ function Bullet(shooter, speed){
     }
 }
 
-
-
 function Bomb(bomber){
     this.bomber = bomber;
     this.launched = new Date().getTime();
     this.last_damage = false;
     this.pos = bomber.pos.cp();
-    this.vel = bomber.dir.cp().normalize().mul(this.speed)
-    this.xvel = new Vector(1, 1).mul(this.xspeed)
+    this.vel = bomber.dir.cp().normalize().mul(this.speed);
+    this.xvel = new Vector(1, 1).mul(this.xspeed); //expansion, or 'explosion' velocity
     this.update = function(){
         var now = app.now;
         if (now - this.launched > this.time_to_die) {
@@ -120,3 +133,4 @@ Bomb.prototype = {
     hit: false
 
 }
+
