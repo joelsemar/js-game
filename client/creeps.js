@@ -26,9 +26,11 @@ function Creep(pos, player){
         if (this.life < 1) {
             utils.arrayRemove(app.creeps, utils.indexOf(app.creeps, this));
             this.last_hit_by.kills += 1;
+            this.last_hit_by.maxSpeed += 200;
+            this.last_hit_by.acc += 200;
 			//roll and see if we drop somethin
-			if (Math.floor(Math.random() * 100) > 35) {
-				app.items.push(new LifeItem(this.pos));
+			if (Math.floor(MaVth.random() * 100) > 35) {
+	//			app.items.pushk(new LifeItem(this.pos));
 			}
             utils.addParticles(this.pos);
             return;

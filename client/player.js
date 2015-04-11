@@ -5,7 +5,7 @@ function Player(id, width, height){
     this.width = width || 20, this.height = height || 30;
     this.polyVerts = [[-1 * this.width / 2, -15], [this.width / 2, -15], [0, 15]];
     this.base_damage = 35;
-    this.life = 500333;
+    this.life = 500;
     this.kills = 0;
     
 	var timeBetweenFire = 250; // how many milliseconds between shots
